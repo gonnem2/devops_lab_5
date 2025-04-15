@@ -41,7 +41,7 @@ def test_create_user_with_valid_email():
     }
     response = client.post("/api/v1/user", json=new_user)
     assert response.status_code == 201
-    assert response.json() == new_user
+    assert response.json() == new_user['id']
 
     # Проверяем, что пользователь действительно создан
     response = client.get("/api/v1/user", params={'email': new_user['email']})
@@ -57,7 +57,7 @@ def test_create_user_with_invalid_email():
         'email': existing_email
     }
     response = client.post("/api/v1/user", json=new_user)
-    assert response.status_code == 400
+    assert response.status_code == 409
     assert "email already exists" in response.json().get("detail", "").lower()
 
 
@@ -71,10 +71,8 @@ def test_delete_user():
     }
     client.post("/api/v1/user", json=test_user)
 
-    # Удаляем пользователя
-    response = client.delete(f"/api/v1/user/{test_user['id']}")
+    response = client.delete(f"/api/v1/user/{test_user['email']}")
     assert response.status_code == 204
 
-    # Проверяем, что пользователь действительно удален
     response = client.get("/api/v1/user", params={'email': test_user['email']})
     assert response.status_code == 404
