@@ -1,6 +1,7 @@
 from http.client import responses
 
 from fastapi.testclient import TestClient
+from starlette.responses import Response
 
 from src.main import app
 
@@ -63,7 +64,6 @@ def test_create_user_with_invalid_email():
 
 def test_delete_user():
     '''Удаление пользователя'''
-    # Сначала создаем пользователя для теста
     test_user = {
         'id': 999,
         'name': 'Test User',
@@ -71,7 +71,7 @@ def test_delete_user():
     }
     client.post("/api/v1/user", json=test_user)
 
-    response = client.delete(f"/api/v1/user/{test_user['email']}")
+    response = client.delete("/api/v1/user/", params={"email": test_user['email']})
     assert response.status_code == 204
 
     response = client.get("/api/v1/user", params={'email': test_user['email']})
